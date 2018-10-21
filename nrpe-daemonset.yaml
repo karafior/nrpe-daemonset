@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: nrpe-daemonset
+spec:
+  selector:
+      matchLabels:
+        name: nrpe-daemonset 
+  template:
+    metadata:
+      labels:
+        name: nrpe-daemonset 
+    spec:
+      nodeSelector: 
+        monitoring-nrpe: "true"
+      hostNetwork: true
+      containers:
+      - image: karafior/nrpe
+        imagePullPolicy: Always
+        name: registry
+        ports:
+        - containerPort: 5666
+          hostPort: 5666
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+        - name: host
+          mountPath: /mnt/host/
+          readOnly: true
+      volumes:
+      - name: host
+        hostPath:
+          path: /
+      serviceAccount: default
+      terminationGracePeriodSeconds: 30
